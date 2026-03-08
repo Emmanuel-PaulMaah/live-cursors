@@ -1,0 +1,249 @@
+:root {
+  --bg: #0b1020;
+  --panel: rgba(17, 24, 39, 0.78);
+  --panel-border: rgba(255, 255, 255, 0.08);
+  --text: #f3f4f6;
+  --muted: #94a3b8;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: Inter, system-ui, Arial, sans-serif;
+  background:
+    radial-gradient(circle at top left, rgba(255,124,67,0.12), transparent 30%),
+    radial-gradient(circle at bottom right, rgba(99,102,241,0.12), transparent 26%),
+    var(--bg);
+  color: var(--text);
+}
+
+#app {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+#board {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.topbar {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  right: 14px;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  z-index: 30;
+  padding: 12px 14px;
+  border: 1px solid var(--panel-border);
+  background: var(--panel);
+  backdrop-filter: blur(10px);
+  border-radius: 18px;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.25);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.brand-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  background: #ff7c43;
+  box-shadow: 0 0 20px rgba(255,124,67,0.7);
+}
+
+.brand-title {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.brand-subtitle {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.controls input[type="text"] {
+  width: 160px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--panel-border);
+  background: rgba(255,255,255,0.06);
+  color: var(--text);
+  outline: none;
+}
+
+.controls input[type="color"] {
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  border: none;
+  border-radius: 12px;
+  background: transparent;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.controls button {
+  height: 42px;
+  padding: 0 14px;
+  border: 1px solid var(--panel-border);
+  border-radius: 12px;
+  background: rgba(255,255,255,0.06);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.controls button:hover {
+  background: rgba(255,255,255,0.1);
+}
+
+#presence {
+  position: absolute;
+  top: 84px;
+  right: 14px;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 240px;
+}
+
+.presence-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid var(--panel-border);
+  background: var(--panel);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.2);
+}
+
+.presence-swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  flex: 0 0 auto;
+}
+
+.presence-name {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.presence-meta {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.cursor {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 25;
+  pointer-events: none;
+  transform: translate3d(0, 0, 0);
+  will-change: transform;
+}
+
+.cursor-arrow {
+  width: 0;
+  height: 0;
+  border-left: 2px solid transparent;
+  border-right: 8px solid transparent;
+  border-top: 18px solid white;
+  transform: rotate(-28deg);
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.3));
+}
+
+.cursor-label {
+  margin-top: 2px;
+  margin-left: 10px;
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  color: white;
+  white-space: nowrap;
+  box-shadow: 0 10px 24px rgba(0,0,0,0.25);
+}
+
+.debug {
+  position: absolute;
+  left: 14px;
+  bottom: 14px;
+  z-index: 40;
+  width: min(460px, calc(100vw - 28px));
+  border: 1px solid var(--panel-border);
+  border-radius: 14px;
+  background: rgba(2, 6, 23, 0.7);
+  backdrop-filter: blur(8px);
+}
+
+.debug summary {
+  cursor: pointer;
+  padding: 10px 12px;
+  color: var(--muted);
+  user-select: none;
+}
+
+.debug textarea {
+  width: 100%;
+  height: 140px;
+  padding: 12px;
+  border: 0;
+  outline: 0;
+  resize: none;
+  color: #d1d5db;
+  background: transparent;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+}
+
+@media (max-width: 840px) {
+  .topbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .controls {
+    width: 100%;
+  }
+
+  .controls input[type="text"] {
+    flex: 1 1 auto;
+    width: auto;
+  }
+
+  #presence {
+    top: 144px;
+  }
+}

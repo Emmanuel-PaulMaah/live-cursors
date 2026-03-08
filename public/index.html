@@ -1,20 +1,40 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Live Cursors</title>
-  <style>
-    body { margin:0; overflow:hidden; }
-    .cursor {
-      position:absolute;
-      width:10px;
-      height:10px;
-      background:red;
-      border-radius:50%;
-      pointer-events:none;
-    }
-  </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Live Cursor Playground</title>
+  <link rel="stylesheet" href="/styles.css" />
 </head>
 <body>
-<script src="client.js"></script>
+  <div id="app">
+    <canvas id="board"></canvas>
+
+    <div class="topbar">
+      <div class="brand">
+        <div class="brand-dot"></div>
+        <div>
+          <div class="brand-title">Live Cursor Playground</div>
+          <div class="brand-subtitle" id="roomLabel">Room: default</div>
+        </div>
+      </div>
+
+      <div class="controls">
+        <input id="nameInput" type="text" maxlength="24" placeholder="Your name" />
+        <input id="colorInput" type="color" value="#ff7c43" />
+        <button id="copyLinkBtn">Copy room link</button>
+        <button id="clearBtn">Clear board</button>
+      </div>
+    </div>
+
+    <div id="presence"></div>
+
+    <details class="debug">
+      <summary>Debug</summary>
+      <textarea id="logs" readonly></textarea>
+    </details>
+  </div>
+
+  <script src="/client.js"></script>
 </body>
 </html>
