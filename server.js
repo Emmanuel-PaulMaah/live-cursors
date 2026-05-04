@@ -22,16 +22,26 @@ const server = http.createServer((req, res) => {
   const url = new URL(req.url, `http://${req.headers.host}`);
   const pathname = url.pathname;
 
-  if (pathname === "/" || pathname.startsWith("/room/")) {
-    return serveFile(res, path.join(PUBLIC_DIR, "index.html"), "text/html; charset=utf-8");
-  }
-
   if (pathname === "/client.js") {
     return serveFile(res, path.join(PUBLIC_DIR, "client.js"), "application/javascript; charset=utf-8");
   }
 
   if (pathname === "/styles.css") {
     return serveFile(res, path.join(PUBLIC_DIR, "styles.css"), "text/css; charset=utf-8");
+  }
+
+  if (pathname === "/healthz") {
+    res.writeHead(200, { "Content-Type": "text/plain" });
+    return res.end("ok");
+  }
+
+  if (pathname === "/favicon.ico") {
+    res.writeHead(204);
+    return res.end();
+  }
+
+  if (pathname === "/" || pathname === "/room" || pathname.startsWith("/room/")) {
+    return serveFile(res, path.join(PUBLIC_DIR, "index.html"), "text/html; charset=utf-8");
   }
 
   res.writeHead(404);
