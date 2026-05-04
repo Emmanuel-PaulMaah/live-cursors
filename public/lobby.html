@@ -5,8 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Live Cursor Playground · join a room</title>
   <link rel="stylesheet" href="/styles.css" />
+  <script>
+    (function () {
+      var t = localStorage.getItem("lc_theme") || "dark";
+      document.documentElement.setAttribute("data-theme", t);
+    })();
+  </script>
 </head>
 <body class="lobby-body">
+  <button id="themeBtn" class="icon-btn lobby-theme" title="Toggle theme" aria-label="Toggle theme" data-icon="moon"></button>
+
   <main class="lobby">
     <div class="lobby-card">
       <div class="lobby-brand">

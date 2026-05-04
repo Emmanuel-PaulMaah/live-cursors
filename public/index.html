@@ -5,6 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
   <title>Live Cursor Playground</title>
   <link rel="stylesheet" href="/styles.css" />
+  <script>
+    // apply theme before paint to avoid flash
+    (function () {
+      var t = localStorage.getItem("lc_theme") || "dark";
+      document.documentElement.setAttribute("data-theme", t);
+    })();
+  </script>
 </head>
 <body>
   <div id="app">
@@ -19,21 +26,25 @@
         </div>
       </div>
 
-      <button id="menuToggle" class="menu-toggle" aria-label="Toggle menu">☰</button>
+      <button id="menuToggle" class="menu-toggle icon-btn" aria-label="Toggle menu" data-icon="menu"></button>
 
       <div id="controls" class="controls">
         <input id="nameInput" type="text" maxlength="24" placeholder="Your name" />
         <input id="colorInput" type="color" value="#ff7c43" />
-        <button id="micBtn" title="Toggle microphone">🎤 Off</button>
-        <button id="copyLinkBtn">Copy room link</button>
-        <button id="leaveBtn">Leave room</button>
-        <button id="clearBtn">Clear board</button>
+
+        <button id="micBtn" class="icon-btn" title="Toggle microphone" aria-label="Toggle microphone" data-icon="mic-off"></button>
+        <button id="speakerBtn" class="icon-btn active" title="Toggle speaker" aria-label="Toggle speaker" data-icon="volume-2"></button>
+        <button id="captionsBtn" class="icon-btn active" title="Toggle subtitles" aria-label="Toggle subtitles" data-icon="captions"></button>
+        <button id="themeBtn" class="icon-btn" title="Toggle theme" aria-label="Toggle theme" data-icon="moon"></button>
+
+        <button id="copyLinkBtn" class="icon-btn" title="Copy room link" aria-label="Copy room link" data-icon="link"></button>
+        <button id="clearBtn" class="icon-btn" title="Clear board" aria-label="Clear board" data-icon="trash"></button>
+        <button id="leaveBtn" class="icon-btn" title="Leave room" aria-label="Leave room" data-icon="log-out"></button>
       </div>
     </div>
 
     <div id="transcript-panel" class="transcript-panel">
       <div id="transcripts"></div>
-    </div>
     </div>
 
     <div id="presence"></div>
