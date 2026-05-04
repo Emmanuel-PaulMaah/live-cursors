@@ -10,6 +10,9 @@ const colorInput = document.getElementById("colorInput");
 const micBtn = document.getElementById("micBtn");
 const copyLinkBtn = document.getElementById("copyLinkBtn");
 const clearBtn = document.getElementById("clearBtn");
+const leaveBtn = document.getElementById("leaveBtn");
+const menuToggle = document.getElementById("menuToggle");
+const controlsEl = document.getElementById("controls");
 const presenceEl = document.getElementById("presence");
 const transcriptsEl = document.getElementById("transcripts");
 const logsEl = document.getElementById("logs");
@@ -673,6 +676,15 @@ copyLinkBtn.addEventListener("click", async () => {
 clearBtn.addEventListener("click", () => {
   redrawBoardBackground();
   send({ type: "clear_board" });
+});
+
+leaveBtn.addEventListener("click", () => {
+  try { ws.close(); } catch {}
+  window.location.href = "/";
+});
+
+menuToggle.addEventListener("click", () => {
+  controlsEl.classList.toggle("open");
 });
 
 window.addEventListener("resize", resizeCanvas);

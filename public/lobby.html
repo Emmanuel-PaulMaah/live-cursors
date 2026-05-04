@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Live Cursor Playground · join a room</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body class="lobby-body">
+  <main class="lobby">
+    <div class="lobby-card">
+      <div class="lobby-brand">
+        <div class="brand-dot"></div>
+        <div>
+          <div class="brand-title">Live Cursor Playground</div>
+          <div class="brand-subtitle">collaborative cursors, drawing & voice</div>
+        </div>
+      </div>
+
+      <form id="lobbyForm" class="lobby-form">
+        <label class="lobby-field">
+          <span>Your name</span>
+          <input id="nameInput" type="text" maxlength="24" placeholder="e.g. Emmanuel" required />
+        </label>
+
+        <label class="lobby-field">
+          <span>Room name</span>
+          <input id="roomInput" type="text" maxlength="48" placeholder="e.g. design-sync" required />
+        </label>
+
+        <div class="lobby-actions">
+          <button type="submit" class="lobby-primary">Join room</button>
+          <button type="button" id="randomRoomBtn" class="lobby-ghost">Random room</button>
+        </div>
+      </form>
+
+      <p class="lobby-hint">
+        share the room url to invite anyone. names with the same room land in the same space.
+      </p>
+    </div>
+  </main>
+
+  <script src="/lobby.js"></script>
+</body>
+</html>

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
   <title>Live Cursor Playground</title>
   <link rel="stylesheet" href="/styles.css" />
 </head>
@@ -19,11 +19,14 @@
         </div>
       </div>
 
-      <div class="controls">
+      <button id="menuToggle" class="menu-toggle" aria-label="Toggle menu">☰</button>
+
+      <div id="controls" class="controls">
         <input id="nameInput" type="text" maxlength="24" placeholder="Your name" />
         <input id="colorInput" type="color" value="#ff7c43" />
         <button id="micBtn" title="Toggle microphone">🎤 Off</button>
         <button id="copyLinkBtn">Copy room link</button>
+        <button id="leaveBtn">Leave room</button>
         <button id="clearBtn">Clear board</button>
       </div>
     </div>

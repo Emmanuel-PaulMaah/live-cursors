@@ -26,6 +26,10 @@ const server = http.createServer((req, res) => {
     return serveFile(res, path.join(PUBLIC_DIR, "client.js"), "application/javascript; charset=utf-8");
   }
 
+  if (pathname === "/lobby.js") {
+    return serveFile(res, path.join(PUBLIC_DIR, "lobby.js"), "application/javascript; charset=utf-8");
+  }
+
   if (pathname === "/styles.css") {
     return serveFile(res, path.join(PUBLIC_DIR, "styles.css"), "text/css; charset=utf-8");
   }
@@ -40,7 +44,11 @@ const server = http.createServer((req, res) => {
     return res.end();
   }
 
-  if (pathname === "/" || pathname === "/room" || pathname.startsWith("/room/")) {
+  if (pathname === "/" || pathname === "/room" || pathname === "/room/") {
+    return serveFile(res, path.join(PUBLIC_DIR, "lobby.html"), "text/html; charset=utf-8");
+  }
+
+  if (pathname.startsWith("/room/")) {
     return serveFile(res, path.join(PUBLIC_DIR, "index.html"), "text/html; charset=utf-8");
   }
 

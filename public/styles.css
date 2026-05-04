@@ -4,6 +4,7 @@
   --panel-border: rgba(255, 255, 255, 0.08);
   --text: #f3f4f6;
   --muted: #94a3b8;
+  --accent: #ff7c43;
 }
 
 * {
@@ -14,13 +15,22 @@ html, body {
   margin: 0;
   width: 100%;
   height: 100%;
-  overflow: hidden;
   font-family: Inter, system-ui, Arial, sans-serif;
   background:
     radial-gradient(circle at top left, rgba(255,124,67,0.12), transparent 30%),
     radial-gradient(circle at bottom right, rgba(99,102,241,0.12), transparent 26%),
     var(--bg);
   color: var(--text);
+  -webkit-tap-highlight-color: transparent;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  overflow: hidden;
+}
+
+body.lobby-body {
+  overflow: auto;
 }
 
 #app {
@@ -34,7 +44,10 @@ html, body {
   inset: 0;
   width: 100%;
   height: 100%;
+  touch-action: none;
 }
+
+/* ---------- topbar ---------- */
 
 .topbar {
   position: absolute;
@@ -65,8 +78,9 @@ html, body {
   width: 12px;
   height: 12px;
   border-radius: 999px;
-  background: #ff7c43;
+  background: var(--accent);
   box-shadow: 0 0 20px rgba(255,124,67,0.7);
+  flex: 0 0 auto;
 }
 
 .brand-title {
@@ -94,6 +108,7 @@ html, body {
   background: rgba(255,255,255,0.06);
   color: var(--text);
   outline: none;
+  font-size: 14px;
 }
 
 .controls input[type="color"] {
@@ -115,11 +130,29 @@ html, body {
   background: rgba(255,255,255,0.06);
   color: var(--text);
   cursor: pointer;
+  font-size: 14px;
 }
 
 .controls button:hover {
   background: rgba(255,255,255,0.1);
 }
+
+/* mobile menu toggle, hidden on desktop */
+.menu-toggle {
+  display: none;
+  height: 42px;
+  width: 42px;
+  border: 1px solid var(--panel-border);
+  border-radius: 12px;
+  background: rgba(255,255,255,0.06);
+  color: var(--text);
+  cursor: pointer;
+  font-size: 20px;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ---------- presence ---------- */
 
 #presence {
   position: absolute;
@@ -161,6 +194,8 @@ html, body {
   color: var(--muted);
 }
 
+/* ---------- cursors ---------- */
+
 .cursor {
   position: absolute;
   left: 0;
@@ -196,6 +231,8 @@ html, body {
   box-shadow: 0 10px 24px rgba(0,0,0,0.25);
 }
 
+/* ---------- debug ---------- */
+
 .debug {
   position: absolute;
   left: 14px;
@@ -213,6 +250,7 @@ html, body {
   padding: 10px 12px;
   color: var(--muted);
   user-select: none;
+  font-size: 13px;
 }
 
 .debug textarea {
@@ -227,6 +265,8 @@ html, body {
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 12px;
 }
+
+/* ---------- transcripts ---------- */
 
 .transcript-panel {
   position: absolute;
@@ -272,26 +312,205 @@ html, body {
   border-color: rgba(34, 197, 94, 0.5);
 }
 
+/* ---------- lobby ---------- */
+
+.lobby {
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+}
+
+.lobby-card {
+  width: 100%;
+  max-width: 440px;
+  padding: 28px;
+  border-radius: 22px;
+  border: 1px solid var(--panel-border);
+  background: var(--panel);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 24px 60px rgba(0,0,0,0.35);
+}
+
+.lobby-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 22px;
+}
+
+.lobby-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.lobby-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.lobby-field span {
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.lobby-field input {
+  width: 100%;
+  padding: 14px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--panel-border);
+  background: rgba(255,255,255,0.06);
+  color: var(--text);
+  outline: none;
+  font-size: 16px;
+}
+
+.lobby-field input:focus {
+  border-color: rgba(255,124,67,0.5);
+}
+
+.lobby-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.lobby-primary,
+.lobby-ghost {
+  flex: 1;
+  height: 48px;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.lobby-primary {
+  border: 0;
+  background: var(--accent);
+  color: #1a0a02;
+}
+
+.lobby-primary:hover {
+  filter: brightness(1.05);
+}
+
+.lobby-ghost {
+  border: 1px solid var(--panel-border);
+  background: rgba(255,255,255,0.06);
+  color: var(--text);
+}
+
+.lobby-ghost:hover {
+  background: rgba(255,255,255,0.1);
+}
+
+.lobby-hint {
+  margin-top: 18px;
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.5;
+  text-align: center;
+}
+
+/* ---------- mobile ---------- */
+
 @media (max-width: 840px) {
   .topbar {
-    flex-direction: column;
-    align-items: stretch;
+    top: 8px;
+    left: 8px;
+    right: 8px;
+    padding: 10px 12px;
+    border-radius: 14px;
+    gap: 8px;
+  }
+
+  .brand-title {
+    font-size: 14px;
+  }
+
+  .brand-subtitle {
+    font-size: 11px;
+  }
+
+  .menu-toggle {
+    display: inline-flex;
   }
 
   .controls {
+    display: none;
     width: 100%;
+    flex-basis: 100%;
+    gap: 6px;
+  }
+
+  .controls.open {
+    display: flex;
   }
 
   .controls input[type="text"] {
     flex: 1 1 auto;
     width: auto;
+    min-width: 0;
+    font-size: 16px; /* prevents iOS auto-zoom */
+  }
+
+  .controls button {
+    flex: 0 0 auto;
+    font-size: 13px;
+    padding: 0 10px;
   }
 
   #presence {
-    top: 144px;
+    top: auto;
+    bottom: 8px;
+    left: 8px;
+    right: auto;
+    flex-direction: row;
+    flex-wrap: wrap;
+    max-width: calc(100vw - 16px);
+    z-index: 28;
+  }
+
+  .presence-card {
+    padding: 6px 10px;
+    border-radius: 999px;
+  }
+
+  .presence-name {
+    font-size: 12px;
+  }
+
+  .presence-meta {
+    display: none;
   }
 
   .transcript-panel {
-    max-width: calc(100vw - 28px);
+    bottom: 64px;
+    right: 8px;
+    left: 8px;
+    max-width: none;
+    max-height: 180px;
+  }
+
+  .debug {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .lobby-card {
+    padding: 22px;
+    border-radius: 18px;
+  }
+
+  .lobby-actions {
+    flex-direction: column;
   }
 }
