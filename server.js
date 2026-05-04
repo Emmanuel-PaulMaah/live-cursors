@@ -228,6 +228,52 @@ wss.on("connection", (ws, req) => {
       broadcastToRoom(roomName, {
         type: "clear_board",
       });
+      return;
+    }
+
+    if (msg.type === "webrtc_offer") {
+      const targetClient = room.get(msg.targetId);
+      if (targetClient) {
+        safeSend(targetClient.ws, {
+          type: "webrtc_offer",
+          from: client.id,
+          offer: msg.offer,
+        });
+      }
+      return;
+    }
+
+    if (msg.type === "webrtc_answer") {
+      const targetClient = room.get(msg.targetId);
+      if (targetClient) {
+        safeSend(targetClient.ws, {
+          type: "webrtc_answer",
+          from: client.id,
+          answer: msg.answer,
+        });
+      }
+      return;
+    }
+
+    if (msg.type === "webrtc_ice") {
+      const targetClient = room.get(msg.targetId);
+      if (targetClient) {
+        safeSend(targetClient.ws, {
+          type: "webrtc_ice",
+          from: client.id,
+          candidate: msg.candidate,
+        });
+      }
+      return;
+    }
+
+    if (msg.type === "transcript") {
+      broadcastToRoom(roomName, {
+        type: "transcript",
+        from: client.id,
+        text: msg.text,
+      }, client.id);
+      return;
     }
   });
 

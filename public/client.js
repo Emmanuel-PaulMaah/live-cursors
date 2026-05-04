@@ -7,9 +7,11 @@ const ctx = board.getContext("2d");
 const roomLabel = document.getElementById("roomLabel");
 const nameInput = document.getElementById("nameInput");
 const colorInput = document.getElementById("colorInput");
+const micBtn = document.getElementById("micBtn");
 const copyLinkBtn = document.getElementById("copyLinkBtn");
 const clearBtn = document.getElementById("clearBtn");
 const presenceEl = document.getElementById("presence");
+const transcriptsEl = document.getElementById("transcripts");
 const logsEl = document.getElementById("logs");
 
 const state = {
@@ -20,6 +22,11 @@ const state = {
   isDrawing: false,
   drawPrev: null,
   rafId: null,
+  micEnabled: false,
+  peerConnections: new Map(),
+  remoteStreams: new Map(),
+  localStream: null,
+  speechRecognition: null,
 };
 
 const fallbackColors = [
@@ -182,6 +189,207 @@ function renderPresence() {
 function send(payload) {
   if (ws.readyState !== WebSocket.OPEN) return;
   ws.send(JSON.stringify(payload));
+}
+
+function initSpeechRecognition() {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    log("speech recognition not supported");
+    return null;
+  }
+
+  const sr = new SpeechRecognition();
+  sr.continuous = true;
+  sr.interimResults = false;
+  sr.lang = "en-US";
+
+  sr.onresult = (event) => {
+    let transcript = "";
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      transcript += event.results[i][0].transcript;
+    }
+    if (transcript.trim()) {
+      send({ type: "transcript", text: transcript });
+      addTranscript(state.users.get(state.selfId)?.name || "You", transcript);
+    }
+  };
+
+  sr.onerror = (event) => {
+    log("speech error:", event.error);
+  };
+
+  sr.onend = () => {
+    if (state.micEnabled) {
+      sr.start();
+    }
+  };
+
+  return sr;
+}
+
+async function toggleMic() {
+  if (!state.micEnabled) {
+    try {
+      state.localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      state.micEnabled = true;
+      micBtn.textContent = "🎤 On";
+      micBtn.classList.add("active");
+
+      if (!state.speechRecognition) {
+        state.speechRecognition = initSpeechRecognition();
+      }
+      if (state.speechRecognition) {
+        state.speechRecognition.start();
+      }
+
+      for (const [peerId] of state.users) {
+        if (peerId !== state.selfId) {
+          createPeerConnection(peerId, true);
+        }
+      }
+
+      log("microphone enabled");
+    } catch (err) {
+      log("mic error:", err.message);
+      state.micEnabled = false;
+    }
+  } else {
+    state.micEnabled = false;
+    micBtn.textContent = "🎤 Off";
+    micBtn.classList.remove("active");
+
+    if (state.speechRecognition) {
+      state.speechRecognition.stop();
+    }
+
+    if (state.localStream) {
+      state.localStream.getTracks().forEach((track) => track.stop());
+      state.localStream = null;
+    }
+
+    for (const pc of state.peerConnections.values()) {
+      pc.close();
+    }
+    state.peerConnections.clear();
+
+    for (const audio of document.querySelectorAll("[id^='audio-']")) {
+      audio.remove();
+    }
+    state.remoteStreams.clear();
+
+    log("microphone disabled");
+  }
+}
+
+async function createPeerConnection(peerId, initiator) {
+  if (state.peerConnections.has(peerId)) {
+    return state.peerConnections.get(peerId);
+  }
+
+  const pc = new RTCPeerConnection({
+    iceServers: [
+      { urls: "stun:stun.l.google.com:19302" },
+      { urls: "stun:stun1.l.google.com:19302" },
+      { urls: "stun:stun.cloudflare.com:3478" },
+      {
+        urls: "turn:openrelay.metered.ca:80",
+        username: "openrelayproject",
+        credential: "openrelayproject",
+      },
+      {
+        urls: "turn:openrelay.metered.ca:443",
+        username: "openrelayproject",
+        credential: "openrelayproject",
+      },
+      {
+        urls: "turn:openrelay.metered.ca:443?transport=tcp",
+        username: "openrelayproject",
+        credential: "openrelayproject",
+      },
+    ],
+    iceCandidatePoolSize: 4,
+  });
+
+  if (state.localStream) {
+    state.localStream.getTracks().forEach((track) => {
+      pc.addTrack(track, state.localStream);
+    });
+  }
+
+  pc.ontrack = (event) => {
+    const user = state.users.get(peerId);
+    const userName = user?.name || peerId.slice(0, 8);
+    log("received remote audio from", userName);
+
+    const remoteStream = event.streams[0];
+    state.remoteStreams.set(peerId, remoteStream);
+
+    let audio = document.getElementById(`audio-${peerId}`);
+    if (!audio) {
+      audio = document.createElement("audio");
+      audio.id = `audio-${peerId}`;
+      audio.autoplay = true;
+      audio.playsinline = true;
+      document.body.appendChild(audio);
+    }
+    audio.srcObject = remoteStream;
+  };
+
+  pc.onicecandidate = (event) => {
+    if (event.candidate) {
+      send({
+        type: "webrtc_ice",
+        targetId: peerId,
+        candidate: event.candidate,
+      });
+    }
+  };
+
+  pc.onconnectionstatechange = () => {
+    log("peer connection state:", peerId, pc.connectionState);
+    if (pc.connectionState === "failed" || pc.connectionState === "disconnected") {
+      state.peerConnections.delete(peerId);
+      state.remoteStreams.delete(peerId);
+      const audio = document.getElementById(`audio-${peerId}`);
+      if (audio) audio.remove();
+    }
+  };
+
+  state.peerConnections.set(peerId, pc);
+
+  if (initiator) {
+    const offer = await pc.createOffer();
+    await pc.setLocalDescription(offer);
+    send({
+      type: "webrtc_offer",
+      targetId: peerId,
+      offer: offer,
+    });
+  }
+
+  return pc;
+}
+
+function addTranscript(name, text) {
+  const item = document.createElement("div");
+  item.className = "transcript-item";
+
+  const nameEl = document.createElement("div");
+  nameEl.className = "transcript-name";
+  nameEl.textContent = name;
+
+  const textEl = document.createElement("div");
+  textEl.className = "transcript-text";
+  textEl.textContent = text;
+
+  item.appendChild(nameEl);
+  item.appendChild(textEl);
+
+  transcriptsEl.insertBefore(item, transcriptsEl.firstChild);
+
+  if (transcriptsEl.children.length > 20) {
+    transcriptsEl.removeChild(transcriptsEl.lastChild);
+  }
 }
 
 function sendIntro() {
@@ -397,6 +605,46 @@ ws.addEventListener("message", (event) => {
   if (msg.type === "clear_board") {
     redrawBoardBackground();
     log("board cleared");
+    return;
+  }
+
+  if (msg.type === "webrtc_offer") {
+    (async () => {
+      const pc = await createPeerConnection(msg.from, false);
+      await pc.setRemoteDescription(new RTCSessionDescription(msg.offer));
+      const answer = await pc.createAnswer();
+      await pc.setLocalDescription(answer);
+      send({
+        type: "webrtc_answer",
+        targetId: msg.from,
+        answer: answer,
+      });
+    })();
+    return;
+  }
+
+  if (msg.type === "webrtc_answer") {
+    const pc = state.peerConnections.get(msg.from);
+    if (pc) {
+      pc.setRemoteDescription(new RTCSessionDescription(msg.answer));
+    }
+    return;
+  }
+
+  if (msg.type === "webrtc_ice") {
+    const pc = state.peerConnections.get(msg.from);
+    if (pc && msg.candidate) {
+      pc.addIceCandidate(new RTCIceCandidate(msg.candidate));
+    }
+    return;
+  }
+
+  if (msg.type === "transcript") {
+    const user = state.users.get(msg.from);
+    if (user) {
+      addTranscript(user.name, msg.text);
+    }
+    return;
   }
 });
 
@@ -410,6 +658,7 @@ ws.addEventListener("error", () => {
 
 nameInput.addEventListener("change", sendIntro);
 colorInput.addEventListener("input", sendIntro);
+micBtn.addEventListener("click", toggleMic);
 
 copyLinkBtn.addEventListener("click", async () => {
   try {
